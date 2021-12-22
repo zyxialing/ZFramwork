@@ -61,7 +61,6 @@ public class GameEditor : Editor
 
         paths.Add("Assets/Game/Resources");
 
-        paths.Add("Assets/Game/Scenes");
 
         paths.Add("Assets/Game/Scripts");
         paths.Add("Assets/Game/Scripts/Event");
