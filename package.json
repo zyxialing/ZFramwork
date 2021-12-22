@@ -1,0 +1,17 @@
+{
+  "name": "com.zyxialing.zframework",
+  "displayName": "ZFramework",
+  "version": "0.0.1",
+  "unity": "2019.3",
+  "keywords": [
+    "unity",
+    "animation",
+    "editor",
+    "timeline",
+    "tools"
+  ],
+  "description": "game framework",
+  "dependencies": {
+    "com.unity.addressables": "1.16.19"
+  }
+}

@@ -13,8 +13,6 @@ public class GameEditor : Editor
     const string assetDynamic = "Assets/Game/AssetDynamic";
     const string assets = "Assets";
     const string meta = ".meta";
-    const string pathConfig = "Assets/ZFramework/Templet/Config/AdressablePath.asset";
-    const string scriptPath = "Assets/ZFramework/Templet/Scritps/Manager/AudioMgr.cs.txt";
     const string gameScriptPath = "Assets/Game/Scripts/";
     const string resourcesConfig = "Assets/Game/Resources/AdressablePath.asset";
     const string commonAudioConfig = "Assets/Game/AssetDynamic/Audio/Common";
@@ -29,6 +27,9 @@ public class GameEditor : Editor
         paths.Add("Assets/Game/AssetDynamic/Prefab");
         paths.Add("Assets/Game/AssetDynamic/Prefab/Game");
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI");
+        paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Panel");
+        paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Pop");
+        paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Tips");
         paths.Add("Assets/Game/AssetDynamic/Scene");
         paths.Add("Assets/Game/AssetDynamic/Sprite");
         paths.Add("Assets/Game/AssetDynamic/Sprite/Game");
@@ -44,6 +45,9 @@ public class GameEditor : Editor
         paths.Add("Assets/Game/AssetStatic/Prefab");
         paths.Add("Assets/Game/AssetStatic/Prefab/Game");
         paths.Add("Assets/Game/AssetStatic/Prefab/UI");
+        paths.Add("Assets/Game/AssetStatic/Prefab/UI/Panel");
+        paths.Add("Assets/Game/AssetStatic/Prefab/UI/Pop");
+        paths.Add("Assets/Game/AssetStatic/Prefab/UI/Tips");
         paths.Add("Assets/Game/AssetStatic/Scene");
         paths.Add("Assets/Game/AssetStatic/Sprite");
         paths.Add("Assets/Game/AssetStatic/Sprite/Game");
@@ -120,10 +124,8 @@ public class GameEditor : Editor
             }
         }
         AssetDatabase.Refresh();
-        FileInfo fileInfo = new FileInfo(pathConfig);
-        fileInfo.CopyTo(resourcesConfig, true);
-        AssetDatabase.Refresh();
-        AdressablePath adressablePath = Resources.Load<AdressablePath>("AdressablePath");
+        AdressablePath adressablePath = ScriptableObject.CreateInstance<AdressablePath>();
+        AssetDatabase.CreateAsset(adressablePath, resourcesConfig);
         string str = "/";
         adressablePath.material_path = adressPaths[0] + str;
         adressablePath.prefab_game_path = adressPaths[1] + str;
