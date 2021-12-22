@@ -21,6 +21,7 @@ public class GameEditor : Editor
     {
         List<string> loadPath = new List<string>();
         paths.Add("Assets/Game");
+        paths.Add("Assets/Third");
 
         paths.Add(assetDynamic);
         paths.Add("Assets/Game/AssetDynamic/Material");
