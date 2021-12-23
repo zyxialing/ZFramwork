@@ -31,6 +31,7 @@ public class GameEditor : Editor
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Panel");
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Pop");
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Tips");
+        paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Overlay");
         paths.Add("Assets/Game/AssetDynamic/Scene");
         paths.Add("Assets/Game/AssetDynamic/Sprite");
         paths.Add("Assets/Game/AssetDynamic/Sprite/Game");
@@ -49,6 +50,7 @@ public class GameEditor : Editor
         paths.Add("Assets/Game/AssetStatic/Prefab/UI/Panel");
         paths.Add("Assets/Game/AssetStatic/Prefab/UI/Pop");
         paths.Add("Assets/Game/AssetStatic/Prefab/UI/Tips");
+        paths.Add("Assets/Game/AssetStatic/Prefab/UI/Overlay");
         paths.Add("Assets/Game/AssetStatic/Scene");
         paths.Add("Assets/Game/AssetStatic/Sprite");
         paths.Add("Assets/Game/AssetStatic/Sprite/Game");
@@ -68,12 +70,12 @@ public class GameEditor : Editor
         paths.Add("Assets/Game/Scripts/UI/Panel");
         paths.Add("Assets/Game/Scripts/UI/Pop");
         paths.Add("Assets/Game/Scripts/UI/Tips");
-        paths.Add("Assets/Game/Scripts/UI/Tips");
+        paths.Add("Assets/Game/Scripts/UI/Overlay");
         paths.Add("Assets/Game/Scripts/UIVO");
         paths.Add("Assets/Game/Scripts/UIVO/Panel");
         paths.Add("Assets/Game/Scripts/UIVO/Pop");
         paths.Add("Assets/Game/Scripts/UIVO/Tips");
-        paths.Add("Assets/Game/Scripts/UIVO/Tips");
+        paths.Add("Assets/Game/Scripts/UIVO/Overlay");
 
         //////////////动态目录
         loadPath.Add("Assets/Game/AssetDynamic/Material");

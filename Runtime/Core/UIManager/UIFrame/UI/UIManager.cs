@@ -10,6 +10,7 @@ public enum PanelLayer
     Panel,
     Pop,
     Tips,
+    Overlay
 }
 
 public struct PanelData
