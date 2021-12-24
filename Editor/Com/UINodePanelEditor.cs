@@ -10,12 +10,13 @@ public class UINodePanelEditor : Editor
     UINodePanel _target;
 
     ReorderableList nodeList;
-
+    SerializedProperty basePanelProperty;
     void OnEnable()
     {
         _target = target as UINodePanel;
 
         SerializedProperty nodesProperty = serializedObject.FindProperty("nodes");
+        basePanelProperty = serializedObject.FindProperty("basePanel");
         nodeList = new ReorderableList(_target.nodes, typeof(string));
 
         nodeList.drawElementCallback = (Rect rect, int index, bool selected, bool focused) =>
@@ -125,7 +126,7 @@ public class UINodePanelEditor : Editor
         if (GUILayout.Button("更新脚本"))
         {
             string name = "";
-            string path = PathFinderEditor.GetPrefabAssetPath(Selection.activeGameObject,out name);
+            string path = PathFinderEditor.GetPrefabAssetPath(Selection.activeGameObject, out name);
             ScriptCreater.CreatePanelClassName(path,name,Selection.activeGameObject.GetComponent<UINodePanel>());
         }
         if (GUILayout.Button("打开UIPanel窗口"))
@@ -138,9 +139,19 @@ public class UINodePanelEditor : Editor
         //FindBack();
 
         EditorGUILayout.Space();
+        if(_target.basePanel == null)
+        {
+            string name = "";
+            string path = PathFinderEditor.GetPrefabAssetPath(Selection.activeGameObject, out name);
+            string dir = path.Replace(".prefab", "").Replace("Assets/Game/AssetDynamic/Prefab/UI", "Assets/Game/Scripts/UI").Replace(name, "");
+            dir = dir + name + ".cs";
+            _target.basePanel = AssetDatabase.LoadAssetAtPath<TextAsset>(dir);
+        }
+
 
         serializedObject.Update();
         nodeList.DoLayoutList();
+        EditorGUILayout.PropertyField(basePanelProperty);
         serializedObject.ApplyModifiedProperties();
         GUILayout.EndScrollView();
     }

@@ -9,7 +9,7 @@ using UnityEngine;
 public class ScriptCreater
 {
 
-    public static void CreatePanelClassName(string path,string name, UINodePanel uIPanel)
+    public static string  CreatePanelClassName(string path,string name, UINodePanel uIPanel)
     {
         StringBuilder stringBuilder = new StringBuilder();
         string adressPath = path.Replace(".prefab", "").Replace("Assets/Game/AssetDynamic/Prefab/UI/", "");
@@ -96,7 +96,7 @@ public class ScriptCreater
                 curTrans = curTrans.parent;
                 if (count > 100) {
                     ZLogUtil.LogError("层级超过100,有毛病吧");
-                    return;
+                    return null;
                 }
             }
             componentPath = componentPath.Remove(0,1);
@@ -111,6 +111,7 @@ public class ScriptCreater
         File.WriteAllText(voDir, stringBuilder.ToString());
         stringBuilder.Clear();
         AssetDatabase.Refresh();
+        return dir;
     }
 
 
