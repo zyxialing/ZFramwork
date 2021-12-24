@@ -29,6 +29,7 @@ public class GameEditor : Editor
         paths.Add("Assets/Game/AssetDynamic/Prefab/Game");
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI");
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Panel");
+        paths.Add("Assets/Game/AssetDynamic/Prefab/UI/PanelUp");
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Pop");
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Tips");
         paths.Add("Assets/Game/AssetDynamic/Prefab/UI/Overlay");
@@ -48,6 +49,7 @@ public class GameEditor : Editor
         paths.Add("Assets/Game/AssetStatic/Prefab/Game");
         paths.Add("Assets/Game/AssetStatic/Prefab/UI");
         paths.Add("Assets/Game/AssetStatic/Prefab/UI/Panel");
+        paths.Add("Assets/Game/AssetStatic/Prefab/UI/PanelUp");
         paths.Add("Assets/Game/AssetStatic/Prefab/UI/Pop");
         paths.Add("Assets/Game/AssetStatic/Prefab/UI/Tips");
         paths.Add("Assets/Game/AssetStatic/Prefab/UI/Overlay");
@@ -68,6 +70,7 @@ public class GameEditor : Editor
         paths.Add("Assets/Game/Scripts/Event");
         paths.Add("Assets/Game/Scripts/UI");
         paths.Add("Assets/Game/Scripts/UI/Panel");
+        paths.Add("Assets/Game/Scripts/UI/PanelUp");
         paths.Add("Assets/Game/Scripts/UI/Pop");
         paths.Add("Assets/Game/Scripts/UI/Tips");
         paths.Add("Assets/Game/Scripts/UI/Overlay");

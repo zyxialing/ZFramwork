@@ -8,6 +8,7 @@ using UnityEngine.EventSystems;
 public enum PanelLayer
 {
     Panel,
+    PanelUp,
     Pop,
     Tips,
     Overlay
@@ -33,7 +34,7 @@ public class UIManager : Singleton<UIManager>
     //画布
     private Canvas canvas;
     private Camera uiCamera;
-    private Stack<PanelData> _panelStack;
+    private Dictionary<PanelLayer, Stack<BasePanel>> _panelStacks;
     private Dictionary<PanelLayer, Transform> layerDict;
     public void Init()
     {
@@ -55,7 +56,7 @@ public class UIManager : Singleton<UIManager>
         InitUICanvas();
 
         layerDict = new Dictionary<PanelLayer, Transform>();
-        _panelStack = new Stack<PanelData>();
+        _panelStacks = new Dictionary<PanelLayer, Stack<BasePanel>>();
         foreach (PanelLayer pl in Enum.GetValues(typeof(PanelLayer)))
         {
             string name = pl.ToString();
@@ -67,79 +68,62 @@ public class UIManager : Singleton<UIManager>
         }
     }
 
-    public void OpenPanel<T>(params object[] args) where T : BasePanel
+    public void OpenPanel<T>(Action callback=null,params object[] args) where T : BasePanel
     {
         string className = typeof(T).FullName;
-        if (IsContainUI(className))
+
+        BasePanel basePanel = canvas.gameObject.AddComponent(typeof(T)) as BasePanel;
+        basePanel.Init(args);
+        if (_panelStacks.ContainsKey(basePanel.panelLayer))
         {
-            int panelCount = GetStackCount();
-            for (int i = 0; i < panelCount; i++)
+            if (_panelStacks[basePanel.panelLayer].Count > 0)
             {
-                PanelData panelData = _panelStack.Peek();
-                if (panelData.name.Equals(className))
-                {
-                    BasePanel basePanel = panelData.basePanel;
-                    basePanel.gameObject.SetActive(true);
-                    basePanel.OnShowed();
-                    return;
-                }
-                else
-                {
-                    ClosePanel();
-                }
+                BasePanel lastPanel = _panelStacks[basePanel.panelLayer].Peek();
+                lastPanel.OnHide();
+                lastPanel.panel.SetActive(false);
             }
+            _panelStacks[basePanel.panelLayer].Push(basePanel);
         }
         else
         {
-            BasePanel basePanel = canvas.gameObject.AddComponent(typeof(T)) as BasePanel;
-            basePanel.Init(args);
-            if (_panelStack.Count > 0)
-            {
-                BasePanel lastPanel = _panelStack.Peek().basePanel;
-                lastPanel.panel.SetActive(false);
-                lastPanel.OnClosing();
-            }
-            _panelStack.Push(new PanelData(className, basePanel));
-            string adressPath = basePanel.adressPath;
-            GameObject panelObj = PrefabUtils.SafeInstanceUI(adressPath, obj => {
-                InitUIPrefab(basePanel,obj);
-            });
-            if (panelObj != null)
-            {
-                InitUIPrefab(basePanel, panelObj);
-            }
+            Stack<BasePanel> panels = new Stack<BasePanel>();
+            panels.Push(basePanel);
+            _panelStacks.Add(basePanel.panelLayer, panels);
         }
-    }
 
-   
-    public bool IsContainUI(string name)
-    {
-            foreach (var item in _panelStack)
-            {
-                if (item.name.Equals(name))
-                {
-                    return true;
-                }
-            }
-            return false;
-    }
-
-    public int GetStackCount()
-    {
-        return _panelStack.Count;
-    }
-
-    public void ClosePanel()
-    {
-        if (_panelStack.Count > 0)
+        string adressPath = basePanel.adressPath;
+        GameObject panelObj = PrefabUtils.SafeInstanceUI(adressPath, obj => {
+            InitUIPrefab(basePanel,obj);
+            callback?.Invoke();
+        });
+        if (panelObj != null)
         {
-          PanelData panelData = _panelStack.Pop();
-          BasePanel panel = panelData.basePanel;
-          panel.OnClosing();
-          panel.OnClosed();
-            GameObject.Destroy(panel.panel);
-            GameObject.Destroy(panel);
-          return;
+            InitUIPrefab(basePanel, panelObj);
+            callback?.Invoke();
+        }
+        
+    }
+
+    public void ClosePanel(PanelLayer panelLayer)
+    {
+        if (_panelStacks.ContainsKey(panelLayer))
+        {
+            if (_panelStacks[panelLayer].Count > 0)
+            {
+                BasePanel panel = _panelStacks[panelLayer].Pop();
+                panel.OnHide();
+                panel.OnClosing();
+                panel.panel.SetActive(false);
+                if (_panelStacks[panelLayer].Count > 0)
+                {
+                    BasePanel basePanel =  _panelStacks[panelLayer].Peek();
+                    basePanel.panel.SetActive(true);
+                    basePanel.OnOpen();
+                }
+                GameObject.Destroy(panel.panel);
+                GameObject.Destroy(panel);
+                return;
+            }
         }
         ZLogUtil.LogError("没有面板关闭了");
     }
@@ -153,8 +137,8 @@ public class UIManager : Singleton<UIManager>
         panelTrans.SetParent(parent, false);
         basePanel.panel.SetActive(true);
         basePanel.AutoInit();
+        basePanel.OnOpen();
         basePanel.OnShowing();
-        basePanel.OnShowed();
     }
 
     private void InitUICanvas()

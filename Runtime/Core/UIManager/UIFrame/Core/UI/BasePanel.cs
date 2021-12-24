@@ -34,30 +34,30 @@ public class BasePanel : MonoBehaviour {
     }
 
     /// <summary>
-    /// 开始启动面板前
+    /// 组件初始化之后，但是面板销毁之前只初始化一次
     /// </summary>
     public virtual void OnShowing()
     {
       
     }
     /// <summary>
-    /// 显示面板后
+    /// 每次打开都会调用
     /// </summary>
-    public virtual void OnShowed()
+    public virtual void OnOpen()
     {
 
     }
     /// <summary>
-    /// 关闭面板前
+    /// 每次关闭都会顶用
+    /// </summary>
+    public virtual void OnHide()
+    {
+
+    }
+    /// <summary>
+    /// 销毁后调用
     /// </summary>
     public virtual void OnClosing()
-    {
-
-    }
-    /// <summary>
-    /// 关闭面板后
-    /// </summary>
-    public virtual void OnClosed()
     {
 
     }
@@ -66,7 +66,7 @@ public class BasePanel : MonoBehaviour {
 
     protected virtual void Close()
     {
-        UIManager.Instance.ClosePanel();
+        UIManager.Instance.ClosePanel(panelLayer);
     }
 
 }

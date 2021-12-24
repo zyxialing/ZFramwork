@@ -5,9 +5,14 @@ using UnityEngine;
 
 public class EventManager : Singleton<EventManager>, IDomainEvent
 {
+    private EventManager()
+    {
+
+    }
+
     public static EventDispatcher eventDispatcher { get; private set; } = new EventDispatcher();
 
-    protected bool Dispatch<TEvent>(TEvent e, bool recycle = true)
+    public bool Dispatch<TEvent>(TEvent e, bool recycle = true)
         where TEvent : Event<TEvent>, new()
     {
         return e != null && eventDispatcher.Dispatch(e, recycle);
