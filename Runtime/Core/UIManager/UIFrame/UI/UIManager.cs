@@ -44,7 +44,7 @@ public class UIManager : Singleton<UIManager>
     {
         canvas = new GameObject("UICanvas", new Type[] { typeof(Canvas), typeof(CanvasScaler)}).GetComponent<Canvas>();
         GameObject.DontDestroyOnLoad(canvas.gameObject);
-        uiCamera = new GameObject("UICamera", new Type[] { typeof(Camera) }).GetComponent<Camera>();
+        uiCamera = CameraUtils.CreateCamer("UICamera");
         Transform eventTrans = new GameObject("EventSystem", new Type[] { typeof(EventSystem),typeof(StandaloneInputModule), typeof(BaseInput) }).transform;
 
         TransformUtils.TransformWorldNormalize(canvas.gameObject);
