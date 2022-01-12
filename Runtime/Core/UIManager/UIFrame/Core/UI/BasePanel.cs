@@ -33,6 +33,20 @@ public class BasePanel : MonoBehaviour {
 
     }
 
+    public void CoroInit(Action callback)
+    {
+        StartCoroutine(InitPanel(callback));
+    }
+
+    private IEnumerator InitPanel(Action callback)
+    {
+        OnShowing();
+        yield return null;
+        OnOpen();
+        yield return null;
+        callback?.Invoke();
+    }
+
     /// <summary>
     /// 组件初始化之后，但是面板销毁之前只初始化一次
     /// </summary>

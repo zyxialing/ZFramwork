@@ -93,13 +93,11 @@ public class UIManager : Singleton<UIManager>
 
         string adressPath = basePanel.adressPath;
         GameObject panelObj = PrefabUtils.SafeInstanceUI(adressPath, obj => {
-            InitUIPrefab(basePanel,obj);
-            callback?.Invoke();
+            InitUIPrefab(basePanel,obj,callback);
         });
         if (panelObj != null)
         {
-            InitUIPrefab(basePanel, panelObj);
-            callback?.Invoke();
+            InitUIPrefab(basePanel, panelObj,callback);
         }
         
     }
@@ -128,7 +126,7 @@ public class UIManager : Singleton<UIManager>
         ZLogUtil.LogError("没有面板关闭了");
     }
 
-    private void InitUIPrefab(BasePanel basePanel, GameObject obj)
+    private void InitUIPrefab(BasePanel basePanel, GameObject obj,Action callback)
     {
         basePanel.panel = obj;
         Transform panelTrans = basePanel.panel.transform;
@@ -137,8 +135,8 @@ public class UIManager : Singleton<UIManager>
         panelTrans.SetParent(parent, false);
         basePanel.panel.SetActive(true);
         basePanel.AutoInit();
-        basePanel.OnOpen();
-        basePanel.OnShowing();
+        basePanel.CoroInit(callback);
+
     }
 
     private void InitUICanvas()
