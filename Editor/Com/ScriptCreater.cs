@@ -260,8 +260,9 @@ public class ScriptCreater
         stringBuilder.Append("using UnityEngine.UI;\n\n");
         stringBuilder.Append($"public partial class {cellName} : EnhancedScrollerCellView\n");
         stringBuilder.Append("{\n");
-        stringBuilder.Append("    public void UpdateData(EnhancedScroller scroller, int dataIndex, int cellIndex)\n");
+        stringBuilder.Append("    public override void RefreshCellView()\n");
         stringBuilder.Append("    {\n");
+        stringBuilder.Append("        AutoInit();\n");
         stringBuilder.Append("    }\n");
         stringBuilder.Append("}");
 
@@ -279,7 +280,6 @@ public class ScriptCreater
         stringBuilder.Append("using EnhancedUI.EnhancedScroller;\n\n");
         stringBuilder.Append(string.Format("public partial class {0} : EnhancedScrollerCellView\n", cellName));
         stringBuilder.Append("{\n");
-        stringBuilder.Append("   private bool isFirstInit = false;\n");
 
         for (int i = 0; i < uINodeScoller.nodes.Count; i++)
         {
@@ -288,8 +288,6 @@ public class ScriptCreater
         stringBuilder.Append("\n");
         stringBuilder.Append("   public void AutoInit()\n");
         stringBuilder.Append("   {\n");
-        stringBuilder.Append("        if (isFirstInit) return;\n");
-        stringBuilder.Append("        isFirstInit = true;\n");
         for (int i = 0; i < uINodeScoller.nodes.Count; i++)
         {
             Transform curTrans = uINodeScoller.nodes[i].transform;
@@ -307,7 +305,7 @@ public class ScriptCreater
                 }
             }
             componentPath = componentPath.Remove(0, 1);
-            stringBuilder.Append($"    this.{uINodeScoller.nodes[i].tag} = transform.Find(\"{componentPath}\").GetComponent<{uINodeScoller.nodes[i].type}>();\n");
+            stringBuilder.Append($"        this.{uINodeScoller.nodes[i].tag} = transform.Find(\"{componentPath}\").GetComponent<{uINodeScoller.nodes[i].type}>();\n");
         }
         stringBuilder.Append("   }\n");
         stringBuilder.Append("}\n");
