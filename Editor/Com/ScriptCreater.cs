@@ -288,6 +288,7 @@ public class ScriptCreater
         stringBuilder.Append("\n");
         stringBuilder.Append("   public void AutoInit()\n");
         stringBuilder.Append("   {\n");
+        stringBuilder.Append("        ServiceBinder.Instance.RegisterObj(this);\n");
         for (int i = 0; i < uINodeScoller.nodes.Count; i++)
         {
             Transform curTrans = uINodeScoller.nodes[i].transform;
