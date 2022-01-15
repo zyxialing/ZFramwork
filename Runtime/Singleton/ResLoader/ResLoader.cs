@@ -104,4 +104,14 @@ public class ResLoader : Singleton<ResLoader>
         return hander;
     }
 
+    public AsyncOperationHandle GetTextAsset(string path, Action<AsyncOperationHandle> callBack)
+    {
+        AsyncOperationHandle hander = Addressables.LoadAssetAsync<TextAsset>(path);
+        hander.Completed += obj =>
+        {
+            callBack.Invoke(obj);
+        };
+        return hander;
+    }
+
 }

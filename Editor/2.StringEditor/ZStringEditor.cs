@@ -8,7 +8,7 @@ namespace ZFramework
     public class ZStringEditor
     {
 
-        [MenuItem("ZFramework/Editor/3.Tool/文件首字母转大写（仅文件）")]
+        [MenuItem("ZFramework/Editor/2.Tool/文件首字母转大写（仅文件）")]
         static private void Capitalize()
         {
             Object[] m_objects = Selection.GetFiltered(typeof(Object), SelectionMode.DeepAssets);//选择的所有对象

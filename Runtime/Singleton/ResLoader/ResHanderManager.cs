@@ -9,6 +9,7 @@ public class ResHanderManager : Singleton<ResHanderManager>
 {
     private Dictionary<string, AudioHander> _dicAudios;
     private Dictionary<string, GameObjectHander> _dicObjects;
+    private Dictionary<string, TextHander> _dicTexts;
     private ResHanderMono _resHanderMono;
     private ResHanderManager()
     {
@@ -17,6 +18,7 @@ public class ResHanderManager : Singleton<ResHanderManager>
         UnityEngine.Object.DontDestroyOnLoad(_resHanderMono);
         _dicObjects = new Dictionary<string, GameObjectHander>();
         _dicAudios = new Dictionary<string, AudioHander>();
+        _dicTexts = new Dictionary<string, TextHander>();
   
         //////////////////////////////////////////////////////////////////
      
@@ -44,6 +46,18 @@ public class ResHanderManager : Singleton<ResHanderManager>
         if (_dicObjects.ContainsKey(name))
         {
             return _dicObjects[name].gameObject;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    public TextAsset GetTextAsset(string name)
+    {
+        if (_dicTexts.ContainsKey(name))
+        {
+            return _dicTexts[name].textAsset;
         }
         else
         {
@@ -123,6 +137,21 @@ public class ResHanderManager : Singleton<ResHanderManager>
             }
         }
 
+    }
+
+    public TextAsset PreAddTextAsset(string path, AsyncOperationHandle textAssetHander)
+    {
+        TextAsset gameObj = textAssetHander.Result as TextAsset;
+        if (!_dicTexts.ContainsKey(path))
+        {
+            _dicTexts.Add(path, new TextHander(textAssetHander, gameObj));
+            return gameObj;
+        }
+        else
+        {
+            Debug.LogError("严重错误");
+            return null;
+        }
     }
 
     #endregion
@@ -268,6 +297,18 @@ public class ResHanderManager : Singleton<ResHanderManager>
         {
             this.gameObjectHander = hander;
             this.gameObject = gameObject;
+        }
+    }
+
+    struct TextHander
+    {
+        public AsyncOperationHandle textHander;
+        public TextAsset textAsset;
+
+        public TextHander(AsyncOperationHandle hander, TextAsset textAsset)
+        {
+            this.textHander = hander;
+            this.textAsset = textAsset;
         }
     }
 }
