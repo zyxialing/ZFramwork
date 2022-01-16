@@ -24,9 +24,9 @@ public class ResHanderManager : Singleton<ResHanderManager>
      
     }
 
-    public void Init(Action<float> LoadProgress)
+    public ResHanderMono Init()
     {
-        _resHanderMono.InitRes(this, LoadProgress);
+       return _resHanderMono;
     }
 
     public AudioClip GetAudio(string name)
@@ -163,22 +163,6 @@ public class ResHanderManager : Singleton<ResHanderManager>
     public class ResHanderMono : MonoBehaviour
     {
         ResHanderManager _resHanderManager;
-        public void InitRes(ResHanderManager resHanderManager, Action<float> LoadProgress)
-        {
-            _resHanderManager = resHanderManager;
-            StartCoroutine(InitAllRes(LoadProgress));
-        }
-        private IEnumerator InitAllRes(Action<float> LoadProgress)
-        {
-            yield return InitCommonAudioRes(null);
-            for (int i = 0; i < 10; i++)
-            {
-                LoadProgress?.Invoke(i * 0.1f);
-                yield return new WaitForSeconds(0.19f);
-            }
-            ///总加载都在这里
-            LoadProgress?.Invoke(1);
-        }
 
         public Coroutine InitNormalAudio(List<string> audioPaths,Action LoadCompleted)
         {
@@ -196,7 +180,7 @@ public class ResHanderManager : Singleton<ResHanderManager>
         /// 公用音效资源
         /// </summary>
         /// <returns></returns>
-        private IEnumerator InitCommonAudioRes(Action LoadCompleted)
+        public IEnumerator InitCommonAudioRes()
         {
             AdressablePath adressablePath = Resources.Load<AdressablePath>(typeof(AdressablePath).ToString());
             int audioCount = 0;
@@ -213,7 +197,25 @@ public class ResHanderManager : Singleton<ResHanderManager>
             {
                 yield return null;
             }
-            LoadCompleted?.Invoke();
+        }
+
+        public IEnumerator InitCommonTextAssetRes()
+        {
+            AdressablePath adressablePath = Resources.Load<AdressablePath>(typeof(AdressablePath).ToString());
+            int audioCount = 0;
+            foreach (var item in adressablePath.commonAudioPaths)
+            {
+                ResLoader.Instance.GetAudioClip(item, (audioClipHander) =>
+                {
+                    audioCount++;
+                    AudioClip audioClip = audioClipHander.Result as AudioClip;
+                    _resHanderManager._dicAudios.Add(audioClip.name, new AudioHander(audioClipHander, audioClip));
+                });
+            }
+            while (adressablePath.commonAudioPaths.Count != audioCount)
+            {
+                yield return null;
+            }
         }
 
         #endregion

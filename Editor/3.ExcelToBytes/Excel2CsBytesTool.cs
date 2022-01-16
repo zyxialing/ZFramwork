@@ -68,10 +68,8 @@ public class Excel2CsBytesTool
             stringBuilder.AppendLine("using System.Runtime.Serialization.Formatters.Binary;");
             stringBuilder.AppendLine("using System.Xml.Serialization;");
             stringBuilder.Append("\n");
-            stringBuilder.AppendLine("namespace Table");
-            stringBuilder.AppendLine("{");
             stringBuilder.AppendLine("    [Serializable]");
-            stringBuilder.AppendLine("    public class " + className);
+            stringBuilder.AppendLine("    public class " + className+ " : IConfig");
             stringBuilder.AppendLine("    {");
             for (int i = 0; i < names.Length; i++)
             {
@@ -112,23 +110,24 @@ public class Excel2CsBytesTool
 
                 stringBuilder.Append("\n");
             }
-            stringBuilder.AppendLine($"        public static void LoadBytes(Action<List<{className}>> callBack)");
+            stringBuilder.AppendLine($"        public void LoadBytes<T>(Action<List<T>> callBack)");
             stringBuilder.AppendLine("        {");
             stringBuilder.AppendLine($"            string bytesPath = \"Assets/Game/AssetDynamic/ConfigBytes/{className}\";");
             stringBuilder.AppendLine("            TextAssetUtils.SafeGetTextAsset(bytesPath, (asset) =>");
             stringBuilder.AppendLine("            {");
-            stringBuilder.AppendLine($"                List<{className}> {className}s = DeserializeData(asset);");
+            stringBuilder.AppendLine($"                List<T> {className}s = DeserializeData<T>(asset);");
             stringBuilder.AppendLine($"                callBack?.Invoke({className}s);");
             stringBuilder.AppendLine("            });");
             stringBuilder.AppendLine("        }");
             stringBuilder.AppendLine("");
-            stringBuilder.AppendLine($"         public static List<{className}> DeserializeData(UnityEngine.TextAsset textAsset)");
+            stringBuilder.AppendLine($"         private List<T> DeserializeData<T>(UnityEngine.TextAsset textAsset)");
             stringBuilder.AppendLine("        {");
             stringBuilder.AppendLine("            using (MemoryStream ms = new MemoryStream(textAsset.bytes))");
             stringBuilder.AppendLine("            {");
             stringBuilder.AppendLine("                BinaryFormatter formatter = new BinaryFormatter();");
             stringBuilder.AppendLine($"                all{className} table = formatter.Deserialize(ms) as all{className};");
-            stringBuilder.AppendLine("                return table.weapons;");
+            stringBuilder.AppendLine($"                Config<{className}>.AddExcelToDic(typeof(T).Name, table.{className}s);");
+            stringBuilder.AppendLine($"                return table.{className}s  as List<T>;");
             stringBuilder.AppendLine("            }");
             stringBuilder.AppendLine("        }");
             stringBuilder.AppendLine("    }");
@@ -138,7 +137,6 @@ public class Excel2CsBytesTool
             stringBuilder.AppendLine("    {");
             stringBuilder.AppendLine("        public List<" + className + "> " + className + "s;");
             stringBuilder.AppendLine("    }");
-            stringBuilder.AppendLine("}");
 
             string csPath = CsClassPath + "/" + className + ".cs";
             if (File.Exists(csPath))
@@ -325,7 +323,7 @@ public class Excel2CsBytesTool
             for (int i = 0; i < types.Length; i++)
             {
                 Type type = types[i];
-                if (type.Namespace == "Table" && type.Name.Contains(AllCsHead))
+                if (type.Name.Contains(AllCsHead))
                 {
                     string className = type.Name.Replace(AllCsHead, "");
 
