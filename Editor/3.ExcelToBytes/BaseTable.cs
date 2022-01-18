@@ -7,8 +7,7 @@ using System.Xml.Serialization;
 /// Excel可以配置的数组类型：string[] int[] bool[] 
 /// 可自行扩展
 /// </summary>
-namespace Table
-{
+namespace Table {
     [System.SerializableAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
     public class stringArray

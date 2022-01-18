@@ -6,9 +6,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
-using Table;
 using System;
 using System.Xml;
+using Table;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -68,6 +68,7 @@ public class Excel2CsBytesTool
             stringBuilder.AppendLine("using System.Runtime.Serialization.Formatters.Binary;");
             stringBuilder.AppendLine("using System.Xml.Serialization;");
             stringBuilder.Append("\n");
+            stringBuilder.Append("namespace Table {");
             stringBuilder.AppendLine("    [Serializable]");
             stringBuilder.AppendLine("    public class " + className+ " : IConfig");
             stringBuilder.AppendLine("    {");
@@ -137,6 +138,7 @@ public class Excel2CsBytesTool
             stringBuilder.AppendLine("    {");
             stringBuilder.AppendLine("        public List<" + className + "> " + className + "s;");
             stringBuilder.AppendLine("    }");
+            stringBuilder.AppendLine("}");
 
             string csPath = CsClassPath + "/" + className + ".cs";
             if (File.Exists(csPath))
@@ -310,7 +312,6 @@ public class Excel2CsBytesTool
             }
         }
 
-        AssetDatabase.Refresh();
     }
 
     static void WriteBytes()
@@ -323,7 +324,7 @@ public class Excel2CsBytesTool
             for (int i = 0; i < types.Length; i++)
             {
                 Type type = types[i];
-                if (type.Name.Contains(AllCsHead))
+                if (type.Namespace == "Table" && type.Name.Contains(AllCsHead))
                 {
                     string className = type.Name.Replace(AllCsHead, "");
 
@@ -335,13 +336,15 @@ public class Excel2CsBytesTool
                         continue;
                     }
                     object table;
-                    using (Stream reader = new FileStream(xmlPath, FileMode.Open))
+                    using (TextReader reader = new StreamReader(xmlPath))
                     {
                         //读取xml实例化table: all+classname
                         //object table = assembly.CreateInstance("Table." + type.Name);
                         XmlSerializer xmlSerializer = new XmlSerializer(type);
                         table = xmlSerializer.Deserialize(reader);
                     }
+                    
+                    ZLogUtil.Log(table.ToString());
                     //obj序列化二进制
                     string bytesPath = BytesDataPath + "/" + className + ".bytes";
                     if (File.Exists(bytesPath))
