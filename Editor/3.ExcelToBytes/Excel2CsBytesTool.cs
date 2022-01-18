@@ -23,7 +23,7 @@ public class Excel2CsBytesTool
     static string XmlDataPath = ExcelDataPath + "/tempXmlData";//生成的xml(临时)文件夹..
     static string AllCsHead = "all";//序列化结构体的数组类.类名前缀
 
-    static char ArrayTypeSplitChar = '#';//数组类型值拆分符: int[] 1#2#34 string[] 你好#再见 bool[] true#false ...
+    public static char ArrayTypeSplitChar = '-';//数组类型值拆分符: int[] 1#2#34 string[] 你好#再见 bool[] true#false ...
     static bool IsDeleteXmlInFinish = false;//生成bytes后是否删除中间文件xml
     [MenuItem("ZFramework/Editor/3.Excel/转Csharp")]
     static void Excel2Cs()
@@ -67,8 +67,9 @@ public class Excel2CsBytesTool
             stringBuilder.AppendLine("using System.IO;");
             stringBuilder.AppendLine("using System.Runtime.Serialization.Formatters.Binary;");
             stringBuilder.AppendLine("using System.Xml.Serialization;");
+            stringBuilder.AppendLine("using ZFramework;");
             stringBuilder.Append("\n");
-            stringBuilder.Append("namespace Table {");
+            stringBuilder.Append("namespace Table {\n");
             stringBuilder.AppendLine("    [Serializable]");
             stringBuilder.AppendLine("    public class " + className+ " : IConfig");
             stringBuilder.AppendLine("    {");
@@ -77,38 +78,18 @@ public class Excel2CsBytesTool
                 stringBuilder.AppendLine("        /// <summary>");
                 stringBuilder.AppendLine("        /// " + descs[i]);
                 stringBuilder.AppendLine("        /// </summary>");
-                stringBuilder.AppendLine("        [XmlAttribute(\"" + names[i] + "\")]");
 
                 string type = types[i];
-                if (type.Contains("[]"))
+                switch (type)
                 {
-                    //type = type.Replace("[]", "");
-                    //stringBuilder.AppendLine("        public List<" + type + "> " + names[i] + ";");
+                    case "int":
+                        AppendInt(stringBuilder,names[i],type);
+                        break;
+                    case "stringArray":
+                        AppendstringArray(stringBuilder, names[i], type);
+                        break;
 
-                    //可选代码：
-                    //用_name字段去反序列化，name取_name.item的值,直接返回list<type>。
-                    //因为xml每行可能有多个数组字段，这样就多了一层变量item，所以访问的时候需要.item才能取到list<type>
-                    //因此用额外的一个变量直接返回List<type>。
-                    type = type.Replace("[]", "");
-                    stringBuilder.AppendLine("        public List<" + type + "> " + names[i] + "");
-                    stringBuilder.AppendLine("        {");
-                    stringBuilder.AppendLine("            get");
-                    stringBuilder.AppendLine("            {");
-                    stringBuilder.AppendLine("                if (_" + names[i] + " != null)");
-                    stringBuilder.AppendLine("                {");
-                    stringBuilder.AppendLine("                    return _" + names[i] + ".item;");
-                    stringBuilder.AppendLine("                }");
-                    stringBuilder.AppendLine("                return null;");
-                    stringBuilder.AppendLine("            }");
-                    stringBuilder.AppendLine("        }");
-                    stringBuilder.AppendLine("        [XmlElementAttribute(\"" + names[i] + "\")]");
-                    stringBuilder.AppendLine("        public " + type + "Array _" + names[i] + ";");
                 }
-                else
-                {
-                    stringBuilder.AppendLine("        public " + type + " " + names[i] + ";");
-                }
-
                 stringBuilder.Append("\n");
             }
             stringBuilder.AppendLine($"        public void LoadBytes<T>(Action<List<T>> callBack)");
@@ -372,5 +353,26 @@ public class Excel2CsBytesTool
             Directory.Delete(XmlDataPath);
             Debug.Log("删除:" + XmlDataPath);
         }
+    }
+
+    static void AppendInt(StringBuilder stringBuilder, string name,string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public int {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set {{ if (string.IsNullOrEmpty(value)) {name} = 0; else {name} = int.Parse(value); }}");
+        stringBuilder.AppendLine($"        }}");
+    }
+    static void AppendstringArray(StringBuilder stringBuilder, string name, string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public List<string> {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<string>();else {name} = ZStringUtil.ArrayStringToList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"        }}");
     }
 }
