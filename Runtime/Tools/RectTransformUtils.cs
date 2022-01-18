@@ -25,4 +25,16 @@ public class RectTransformUtils
         rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, 20);
 
     }
+
+    public static void SetStretchButtom(GameObject obj, float height = 20)
+    {
+        var rectTransform = obj.GetComponent<RectTransform>();
+        rectTransform.anchorMin = Vector2.zero;
+        rectTransform.anchorMax = Vector2.right;
+        rectTransform.pivot = Vector2.one;
+        rectTransform.offsetMin = Vector2.zero;
+        rectTransform.offsetMax = Vector2.zero;
+        rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 20);
+
+    }
 }

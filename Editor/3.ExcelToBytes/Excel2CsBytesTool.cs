@@ -8,7 +8,6 @@ using System.Text;
 using System.Reflection;
 using System;
 using System.Xml;
-using Table;
 using System.Xml.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -28,13 +27,32 @@ public class Excel2CsBytesTool
     [MenuItem("ZFramework/Editor/3.Excel/转Csharp")]
     static void Excel2Cs()
     {
-        Init();
+        if (Directory.Exists(CsClassPath))
+        {
+            Directory.Delete(CsClassPath, true);
+        }
+        Directory.CreateDirectory(CsClassPath);
+        if (Directory.Exists(XmlDataPath))
+        {
+            Directory.Delete(XmlDataPath, true);
+        }
+
+
+        AssetDatabase.Refresh();
+        Directory.CreateDirectory(XmlDataPath);
         Excel2CsOrXml(true);
     }
     [MenuItem("ZFramework/Editor/3.Excel/转Bytes(等待上一步编译后)")]
     static void Excel2Xml2Bytes()
     {
-        Init();
+        if (Directory.Exists(BytesDataPath))
+        {
+            Directory.Delete(BytesDataPath, true);
+        }
+        Directory.CreateDirectory(BytesDataPath);
+
+
+        AssetDatabase.Refresh();
         //生成中间文件xml
         Excel2CsOrXml(false);
         //生成bytes
@@ -43,18 +61,7 @@ public class Excel2CsBytesTool
 
     static void Init()
     {
-        if (!Directory.Exists(CsClassPath))
-        {
-            Directory.CreateDirectory(CsClassPath);
-        }
-        if (!Directory.Exists(XmlDataPath))
-        {
-            Directory.CreateDirectory(XmlDataPath);
-        }
-        if (!Directory.Exists(BytesDataPath))
-        {
-            Directory.CreateDirectory(BytesDataPath);
-        }
+
     }
 
     static void WriteCs(string className, string[] names, string[] types, string[] descs)
@@ -75,6 +82,7 @@ public class Excel2CsBytesTool
             stringBuilder.AppendLine("    {");
             for (int i = 0; i < names.Length; i++)
             {
+                descs[i] = descs[i].Replace("\n", "\n        ///");
                 stringBuilder.AppendLine("        /// <summary>");
                 stringBuilder.AppendLine("        /// " + descs[i]);
                 stringBuilder.AppendLine("        /// </summary>");
@@ -85,8 +93,32 @@ public class Excel2CsBytesTool
                     case "int":
                         AppendInt(stringBuilder,names[i],type);
                         break;
+                    case "long":
+                        AppendLong(stringBuilder, names[i], type);
+                        break;
+                    case "float":
+                        AppendFloat(stringBuilder, names[i], type);
+                        break;
+                    case "bool":
+                        AppendBool(stringBuilder, names[i], type);
+                        break;
+                    case "string":
+                        AppendString(stringBuilder, names[i], type);
+                        break;
                     case "stringArray":
                         AppendstringArray(stringBuilder, names[i], type);
+                        break;
+                    case "intArray":
+                        AppendintArray(stringBuilder, names[i], type);
+                        break;
+                    case "floatArray":
+                        AppendfloatArray(stringBuilder, names[i], type);
+                        break;
+                    case "boolArray":
+                        AppendboolArray(stringBuilder, names[i], type);
+                        break;
+                    case "longArray":
+                        AppendlongArray(stringBuilder, names[i], type);
                         break;
 
                 }
@@ -137,6 +169,7 @@ public class Excel2CsBytesTool
             Debug.LogError("写入CS失败:" + e.Message);
             throw;
         }
+        AssetDatabase.Refresh();
     }
 
     static void WriteXml(string className, string[] names, string[] types, List<string[]> datasList)
@@ -365,6 +398,46 @@ public class Excel2CsBytesTool
         stringBuilder.AppendLine($"            set {{ if (string.IsNullOrEmpty(value)) {name} = 0; else {name} = int.Parse(value); }}");
         stringBuilder.AppendLine($"        }}");
     }
+    static void AppendLong(StringBuilder stringBuilder, string name,string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public long {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set {{ if (string.IsNullOrEmpty(value)) {name} = 0; else {name} = long.Parse(value); }}");
+        stringBuilder.AppendLine($"        }}");
+    }
+    static void AppendFloat(StringBuilder stringBuilder, string name,string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public float {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set {{ if (string.IsNullOrEmpty(value)) {name} = 0; else {name} = float.Parse(value); }}");
+        stringBuilder.AppendLine($"        }}");
+    }
+    static void AppendBool(StringBuilder stringBuilder, string name,string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public bool {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set {{ if (string.IsNullOrEmpty(value)) {name} = false; else {name} = bool.Parse(value); }}");
+        stringBuilder.AppendLine($"        }}");
+    }
+    static void AppendString(StringBuilder stringBuilder, string name,string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public string {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set {{ if (string.IsNullOrEmpty(value)) {name} = \"\"; else {name} = value; }}");
+        stringBuilder.AppendLine($"        }}");
+    }
     static void AppendstringArray(StringBuilder stringBuilder, string name, string type)
     {
         stringBuilder.AppendLine($"        [XmlIgnore]");
@@ -373,6 +446,46 @@ public class Excel2CsBytesTool
         stringBuilder.AppendLine($"        public string _{name} {{");
         stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
         stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<string>();else {name} = ZStringUtil.ArrayStringToList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"        }}");
+    }
+    static void AppendintArray(StringBuilder stringBuilder, string name, string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public List<int> {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<int>();else {name} = ZStringUtil.ArrayStringToIntList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"        }}");
+    }
+    static void AppendfloatArray(StringBuilder stringBuilder, string name, string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public List<float> {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<float>();else {name} = ZStringUtil.ArrayStringToFloatList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"        }}");
+    }
+    static void AppendboolArray(StringBuilder stringBuilder, string name, string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public List<bool> {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<bool>();else {name} = ZStringUtil.ArrayStringToBoolList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"        }}");
+    }
+    static void AppendlongArray(StringBuilder stringBuilder, string name, string type)
+    {
+        stringBuilder.AppendLine($"        [XmlIgnore]");
+        stringBuilder.AppendLine($"        public List<long> {name};");
+        stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
+        stringBuilder.AppendLine($"        public string _{name} {{");
+        stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<long>();else {name} = ZStringUtil.ArrayStringToBoolList(value.Split(ArrayStringToLongList.ArrayTypeSplitChar));}}");
         stringBuilder.AppendLine($"        }}");
     }
 }

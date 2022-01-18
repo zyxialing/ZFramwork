@@ -153,6 +153,10 @@ public class ScriptCreater
         stringBuilder.Append("[RequireComponent(typeof(EnhancedScroller))]\n");
         stringBuilder.Append($"public partial class {scrollName} : MonoBehaviour, IEnhancedScrollerDelegate\n");
         stringBuilder.Append("{\n");
+        stringBuilder.Append("    public void Init()\n");
+        stringBuilder.Append("    {\n");
+        stringBuilder.Append("     \n");
+        stringBuilder.Append("    }\n");
         stringBuilder.Append("    public EnhancedScrollerCellView GetCellView(EnhancedScroller scroller, int dataIndex, int cellIndex)\n");
         stringBuilder.Append("    {\n");
         stringBuilder.Append($"       EnhancedScrollerCellView cellView = scroller.GetCellView(cellViewPrefab);\n");
@@ -222,6 +226,7 @@ public class ScriptCreater
             componentPath = componentPath.Remove(0, 1);
             stringBuilder.Append($"        this.{uINodeScoller.nodes[i].tag} = transform.Find(\"{componentPath}\").GetComponent<{uINodeScoller.nodes[i].type}>();\n");
         }
+        stringBuilder.Append("        Init();\n");
         stringBuilder.Append("     }\n");
         stringBuilder.Append("}\n");
 
