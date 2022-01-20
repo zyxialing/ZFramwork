@@ -62,6 +62,9 @@ namespace EnhancedUI.EnhancedScroller
     /// <param name="cellView">The cell view that was resused</param>
     public delegate void CellViewReused(EnhancedScroller scroller, EnhancedScrollerCellView cellView);
 
+    public delegate void ScrollOnBeginDrag(PointerEventData data);
+    public delegate void ScrollOnEndDrag(PointerEventData data);
+
     /// <summary>
     /// The EnhancedScroller allows you to easily set up a dynamic scroller that will recycle views for you. This means
     /// that using only a handful of views, you can display thousands of rows. This will save memory and processing
@@ -298,6 +301,9 @@ namespace EnhancedUI.EnhancedScroller
         /// This delegate is called when the scroller reuses a recycled cell view
         /// </summary>
         public CellViewReused cellViewReused;
+
+        public ScrollOnBeginDrag scrollOnBeginDrag;
+        public ScrollOnEndDrag scrollOnEndDrag;
 
         /// <summary>
         /// The Delegate is what the scroller will call when it needs to know information about
@@ -1358,7 +1364,8 @@ namespace EnhancedUI.EnhancedScroller
         /// The number of fingers that are dragging the ScrollRect.
         /// Used in OnBeginDrag and OnEndDrag
         /// </summary>
-        private int _dragFingerCount;
+        [NonSerialized]
+        public int _dragFingerCount;
 
         /// <summary>
         /// Where in the list we are
@@ -1915,9 +1922,9 @@ namespace EnhancedUI.EnhancedScroller
 		{
             _dragFingerCount++;
             if (_dragFingerCount > 1) return;
-
-			// capture the snapping and set it to false if desired
-			_snapBeforeDrag = snapping;
+            scrollOnBeginDrag?.Invoke(data);
+              // capture the snapping and set it to false if desired
+              _snapBeforeDrag = snapping;
 			if (!snapWhileDragging)
 			{
 				snapping = false;
@@ -1940,9 +1947,9 @@ namespace EnhancedUI.EnhancedScroller
 		{
             _dragFingerCount--;
             if (_dragFingerCount < 0) _dragFingerCount = 0;
-
-			// reset the snapping and looping to what it was before the drag
-			snapping = _snapBeforeDrag;
+            scrollOnEndDrag?.Invoke(data);
+            // reset the snapping and looping to what it was before the drag
+            snapping = _snapBeforeDrag;
 			loop = _loopBeforeDrag;
 		}
 

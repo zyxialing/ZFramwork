@@ -33,7 +33,7 @@ public class UIManager : Singleton<UIManager>
 {
     //画布
     private Canvas canvas;
-    private Camera uiCamera;
+    public Camera uiCamera;
     private Dictionary<PanelLayer, Stack<BasePanel>> _panelStacks;
     private Dictionary<PanelLayer, Transform> layerDict;
     public void Init()

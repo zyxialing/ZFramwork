@@ -29,6 +29,8 @@ namespace EnhancedUI.EnhancedScroller
         [NonSerialized]
         public int dataIndex;
 
+        [NonSerialized]
+        public EnhancedScroller scroller;
         /// <summary>
         /// Whether the cell is active or recycled
         /// </summary>
