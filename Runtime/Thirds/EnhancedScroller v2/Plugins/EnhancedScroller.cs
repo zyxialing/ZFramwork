@@ -64,6 +64,7 @@ namespace EnhancedUI.EnhancedScroller
 
     public delegate void ScrollOnBeginDrag(PointerEventData data);
     public delegate void ScrollOnEndDrag(PointerEventData data);
+    public delegate void ScrollPointer(PointerEventData data);
 
     /// <summary>
     /// The EnhancedScroller allows you to easily set up a dynamic scroller that will recycle views for you. This means
@@ -71,7 +72,7 @@ namespace EnhancedUI.EnhancedScroller
     /// power in your application.
     /// </summary>
     [RequireComponent(typeof(ScrollRect))]
-    public class EnhancedScroller : MonoBehaviour, IBeginDragHandler, IEndDragHandler
+    public class EnhancedScroller : MonoBehaviour, IBeginDragHandler, IEndDragHandler,IPointerDownHandler,IPointerUpHandler
     {
         #region Public
 
@@ -304,6 +305,8 @@ namespace EnhancedUI.EnhancedScroller
 
         public ScrollOnBeginDrag scrollOnBeginDrag;
         public ScrollOnEndDrag scrollOnEndDrag;
+        public ScrollPointer onPointerDown;
+        public ScrollPointer onPointerUp;
 
         /// <summary>
         /// The Delegate is what the scroller will call when it needs to know information about
@@ -1952,6 +1955,15 @@ namespace EnhancedUI.EnhancedScroller
             snapping = _snapBeforeDrag;
 			loop = _loopBeforeDrag;
 		}
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            onPointerDown?.Invoke(eventData);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            onPointerUp?.Invoke(eventData);
+        }
 
         void Update()
         {
@@ -2558,7 +2570,6 @@ namespace EnhancedUI.EnhancedScroller
             val = val - 1;
             return a * Mathf.Pow(2, -10 * val) * Mathf.Sin((val * d - s) * (2 * Mathf.PI) / p) * 0.5f + end + start;
         }
-
         #endregion
     }
 }
