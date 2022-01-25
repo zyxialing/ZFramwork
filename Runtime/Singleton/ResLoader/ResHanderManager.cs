@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BehaviorDesigner.Runtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,7 @@ public class ResHanderManager : Singleton<ResHanderManager>
     private Dictionary<string, AudioHander> _dicAudios;
     private Dictionary<string, GameObjectHander> _dicObjects;
     private Dictionary<string, TextHander> _dicTexts;
+    private Dictionary<string, AIHander> _dicAis;
     private ResHanderMono _resHanderMono;
     private ResHanderManager()
     {
@@ -19,9 +21,9 @@ public class ResHanderManager : Singleton<ResHanderManager>
         _dicObjects = new Dictionary<string, GameObjectHander>();
         _dicAudios = new Dictionary<string, AudioHander>();
         _dicTexts = new Dictionary<string, TextHander>();
-  
+        _dicAis = new Dictionary<string, AIHander>();
         //////////////////////////////////////////////////////////////////
-     
+
     }
 
     public ResHanderMono Init()
@@ -53,6 +55,18 @@ public class ResHanderManager : Singleton<ResHanderManager>
         }
     }
 
+    public ExternalBehavior GetAI(string name)
+    {
+        if (_dicAis.ContainsKey(name))
+        {
+            return _dicAis[name].behavior;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     public TextAsset GetTextAsset(string name)
     {
         if (_dicTexts.ContainsKey(name))
@@ -67,38 +81,33 @@ public class ResHanderManager : Singleton<ResHanderManager>
 
 
     #region 资源周期管理
-    public void PreLoadNormalAudio(List<string> audioPaths, Action LoadCompleted)
+    public ExternalBehavior PreLoadAI(string path, AsyncOperationHandle aiHander)
     {
-        _resHanderMono.InitNormalAudio(audioPaths, LoadCompleted);
-    }
-
-    public void ReleasePreLoadNormalAudio(List<string> audioPaths)
-    {
-        for (int i = 0; i < audioPaths.Count; i++)
+        ExternalBehavior gameObj = aiHander.Result as ExternalBehavior;
+        if (!_dicAudios.ContainsKey(path))
         {
-            if (_dicAudios.ContainsKey(audioPaths[i]))
-            {
-                Addressables.Release(_dicAudios[audioPaths[i]].audioHander);
-                _dicAudios.Remove(audioPaths[i]);
-            }
+            _dicAis.Add(path, new AIHander(aiHander, gameObj));
+            return gameObj;
+        }
+        else
+        {
+            Debug.LogError("严重错误");
+            return null;
         }
     }
 
-
-    public void PreLoadGameObject(List<string> gameObjectPaths,Action LoadCompleted)
+    public AudioClip PreLoadAudio(string path, AsyncOperationHandle audioHander)
     {
-        _resHanderMono.InitGameObject(gameObjectPaths, LoadCompleted);
-    }
-
-    public void ReleasePreLoadGameObject(List<string> gameObjectPaths)
-    {
-        for (int i = 0; i < gameObjectPaths.Count; i++)
+        AudioClip gameObj = audioHander.Result as AudioClip;
+        if (!_dicAudios.ContainsKey(path))
         {
-            if (_dicAudios.ContainsKey(gameObjectPaths[i]))
-            {
-                Addressables.Release(_dicObjects[gameObjectPaths[i]].gameObjectHander);
-                _dicAudios.Remove(gameObjectPaths[i]);
-            }
+            _dicAudios.Add(path, new AudioHander(audioHander, gameObj));
+            return gameObj;
+        }
+        else
+        {
+            Debug.LogError("严重错误");
+            return null;
         }
     }
 
@@ -116,29 +125,6 @@ public class ResHanderManager : Singleton<ResHanderManager>
             return null;
         }
     }
-
-    public void ReleaseAddGameObject(string path)
-    {
-        if (_dicAudios.ContainsKey(path))
-        {
-            Addressables.Release(_dicObjects[path].gameObjectHander);
-            _dicAudios.Remove(path);
-        }
-    }
-
-    public void ReleaseAddGameObjects(List<string> paths)
-    {
-        for (int i = 0; i < paths.Count; i++)
-        {
-            if (_dicObjects.ContainsKey(paths[i]))
-            {
-                Addressables.Release(_dicObjects[paths[i]].gameObjectHander);
-                _dicObjects.Remove(paths[i]);
-            }
-        }
-
-    }
-
     public TextAsset PreAddTextAsset(string path, AsyncOperationHandle textAssetHander)
     {
         TextAsset gameObj = textAssetHander.Result as TextAsset;
@@ -311,6 +297,17 @@ public class ResHanderManager : Singleton<ResHanderManager>
         {
             this.textHander = hander;
             this.textAsset = textAsset;
+        }
+    }
+    struct AIHander
+    {
+        public AsyncOperationHandle behaviorHander;
+        public ExternalBehavior behavior;
+
+        public AIHander(AsyncOperationHandle hander, ExternalBehavior behavior)
+        {
+            this.behaviorHander = hander;
+            this.behavior = behavior;
         }
     }
 }

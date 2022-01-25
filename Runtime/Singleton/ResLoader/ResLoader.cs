@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BehaviorDesigner.Runtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +18,16 @@ public class ResLoader : Singleton<ResLoader>
     public AsyncOperationHandle GetAudioClip(string path, Action<AsyncOperationHandle> callBack)
     {
         AsyncOperationHandle hander = Addressables.LoadAssetAsync<AudioClip>(AdressablePath.Instance.audio_path + path);
+        hander.Completed += obj =>
+        {
+            callBack?.Invoke(obj);
+        };
+        return hander;
+    }
+
+    public AsyncOperationHandle GetAI(string path, Action<AsyncOperationHandle> callBack)
+    {
+        AsyncOperationHandle hander = Addressables.LoadAssetAsync<ExternalBehavior>(path);
         hander.Completed += obj =>
         {
             callBack?.Invoke(obj);

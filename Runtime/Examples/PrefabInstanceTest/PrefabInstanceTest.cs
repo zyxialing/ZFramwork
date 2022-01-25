@@ -14,7 +14,7 @@ public class PrefabInstanceTest : MonoBehaviour
 
     void PreLoad()
     {
-        ResHanderManager.Instance.PreLoadGameObject(prefabPath, () => { Debug.Log("‘§º”‘ÿÕÍ≥…"); });
+
     }
 
     // Update is called once per frame
@@ -30,10 +30,7 @@ public class PrefabInstanceTest : MonoBehaviour
             PrefabUtils.SafeInstance(prefabPath[Random.Range(0, prefabPath.Count)], Vector3.zero, Quaternion.identity, null,null);
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            ResHanderManager.Instance.ReleaseAddGameObjects(prefabPath);
-        }
+
     }
 
 
