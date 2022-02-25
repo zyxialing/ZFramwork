@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -19,6 +20,18 @@ public class UIUtils
         ResLoader.Instance.GetUISprite(path, (sp) => {
             image.sprite = sp;
         });
+    }
+    public static void LoadSprite(string path,Action<Sprite> callback)
+    {
+        //if (loadingSprite == null)
+        //{
+        //    loadingSprite = Resources.Load<Sprite>("loading");
+        //}
+        //if(image.sprite = null)
+        //{
+        //    image.sprite = loadingSprite;
+        //}
+        ResLoader.Instance.GetUISprite(path,callback);
     }
 
 }
