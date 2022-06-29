@@ -27,7 +27,7 @@ public class PrefabInstanceTest : MonoBehaviour
 
         if (Input.GetMouseButtonDown(1))
         {
-            PrefabUtils.SafeInstance(prefabPath[Random.Range(0, prefabPath.Count)], Vector3.zero, Quaternion.identity, null,null);
+            PrefabUtils.Instance(prefabPath[Random.Range(0, prefabPath.Count)], Vector3.zero, Quaternion.identity, null,false);
         }
 
 

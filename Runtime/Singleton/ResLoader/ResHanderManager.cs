@@ -5,309 +5,227 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.SceneManagement;
 
 public class ResHanderManager : Singleton<ResHanderManager>
 {
-    private Dictionary<string, AudioHander> _dicAudios;
-    private Dictionary<string, GameObjectHander> _dicObjects;
-    private Dictionary<string, TextHander> _dicTexts;
-    private Dictionary<string, AIHander> _dicAis;
-    private ResHanderMono _resHanderMono;
+    private Dictionary<string, ResHander> _dicRes;
+
     private ResHanderManager()
     {
-        _resHanderMono = new GameObject("ResHanderManager").AddComponent<ResHanderMono>();
-
-        UnityEngine.Object.DontDestroyOnLoad(_resHanderMono);
-        _dicObjects = new Dictionary<string, GameObjectHander>();
-        _dicAudios = new Dictionary<string, AudioHander>();
-        _dicTexts = new Dictionary<string, TextHander>();
-        _dicAis = new Dictionary<string, AIHander>();
+        _dicRes = new Dictionary<string, ResHander>();
         //////////////////////////////////////////////////////////////////
-
     }
 
-    public ResHanderMono Init()
+    /// <summary>
+    /// 预加载只能写入全路径
+    /// </summary>
+    /// <param name="list"></param>
+    public void PreloadAudioAssets(List<string> list,Action callBack)
     {
-       return _resHanderMono;
-    }
-
-    public AudioClip GetAudio(string name)
-    {
-        if (_dicAudios.ContainsKey(name))
+        if(list==null || list.Count == 0)
         {
-            return _dicAudios[name].audioClip;
+            callBack?.Invoke();
+            return;
+        }
+        int loadCount = 0;
+        for (int i = 0; i < list.Count; i++)
+        {
+            string path = list[i];
+            if (!_dicRes.ContainsKey(path))
+            {
+                AsyncOperationHandle hander = Addressables.LoadAssetAsync<AudioClip>(path);
+                hander.Completed += obj =>
+                {
+                    _dicRes.Add(path, new ResHander(hander));//默认引用计数为1
+                    loadCount++;
+                    if (loadCount == list.Count)
+                    {
+                        callBack?.Invoke();
+                    }
+                };
+
+            }
+        }
+    }
+
+    #region 获取 添加引用计数
+    public AudioClip GetAudio(string path)
+    {
+        if (_dicRes.ContainsKey(path))
+        {
+            var res = _dicRes[path];
+            res.count++; //引用计数加1
+            return res.hander.Result as AudioClip;
         }
         else
         {
-            return null;
+           var hander = ResLoader.Instance.GetAudioClip(path);
+            _dicRes.Add(path, new ResHander(hander));//默认引用计数为1
+            return _dicRes[path].hander.Result as AudioClip;
         }
     }
-
-    public GameObject GetGameObject(string name)
+    public ExternalBehavior GetAI(string path)
     {
-        if (_dicObjects.ContainsKey(name))
+        if (_dicRes.ContainsKey(path))
         {
-            return _dicObjects[name].gameObject;
+            var res = _dicRes[path];
+            res.count++; //引用计数加1
+            return res.hander.Result as ExternalBehavior;
         }
         else
         {
-            return null;
+            var hander = ResLoader.Instance.GetAI(path);
+            _dicRes.Add(path, new ResHander(hander));//默认引用计数为1
+            return _dicRes[path].hander.Result as ExternalBehavior;
         }
     }
-
-    public ExternalBehavior GetAI(string name)
+    public Material GetMaterial(string path)
     {
-        if (_dicAis.ContainsKey(name))
+        if (_dicRes.ContainsKey(path))
         {
-            return _dicAis[name].behavior;
+            var res = _dicRes[path];
+            res.count++; //引用计数加1
+            return res.hander.Result as Material;
         }
         else
         {
-            return null;
+            var hander = ResLoader.Instance.GetMaterial(path);
+            _dicRes.Add(path, new ResHander(hander));//默认引用计数为1
+            return _dicRes[path].hander.Result as Material;
         }
     }
-
-    public TextAsset GetTextAsset(string name)
+    /// <summary>
+    /// 默认UI路径
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="objType"></param>
+    /// <returns></returns>
+    public GameObject GetGameObject(string path,bool objType)
     {
-        if (_dicTexts.ContainsKey(name))
+        if (_dicRes.ContainsKey(path))
         {
-            return _dicTexts[name].textAsset;
+            var res = _dicRes[path];
+            res.count++; //引用计数加1
+            return res.hander.Result as GameObject;
         }
         else
         {
-            return null;
+            AsyncOperationHandle hander;
+            if (objType)
+            {
+                hander = ResLoader.Instance.GetUIPrefab(path);
+            }
+            else
+            {
+                hander = ResLoader.Instance.GetGamePrefab(path);
+            }
+            _dicRes.Add(path, new ResHander(hander));//默认引用计数为1
+            return _dicRes[path].hander.Result as GameObject;
         }
     }
-
-
-    #region 资源周期管理
-    public ExternalBehavior PreLoadAI(string path, AsyncOperationHandle aiHander)
+    /// <summary>
+    /// 默认UI路径
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="objType"></param>
+    /// <returns></returns>
+    public Sprite GetSprite(string path, bool objType)
     {
-        ExternalBehavior gameObj = aiHander.Result as ExternalBehavior;
-        if (!_dicAudios.ContainsKey(path))
+        if (_dicRes.ContainsKey(path))
         {
-            _dicAis.Add(path, new AIHander(aiHander, gameObj));
-            return gameObj;
+            var res = _dicRes[path];
+            res.count++; //引用计数加1
+            return res.hander.Result as Sprite;
         }
         else
         {
-            Debug.LogError("严重错误");
-            return null;
+            AsyncOperationHandle hander;
+            if (objType)
+            {
+                hander = ResLoader.Instance.GetUISprite(path);
+            }
+            else
+            {
+                hander = ResLoader.Instance.GetGameSprite(path);
+            }
+            _dicRes.Add(path, new ResHander(hander));//默认引用计数为1
+            return _dicRes[path].hander.Result as Sprite;
         }
     }
-
-    public AudioClip PreLoadAudio(string path, AsyncOperationHandle audioHander)
+    /// <summary>
+    /// 默认UI路径
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="objType"></param>
+    /// <returns></returns>
+    public Texture GetTexture(string path, bool objType)
     {
-        AudioClip gameObj = audioHander.Result as AudioClip;
-        if (!_dicAudios.ContainsKey(path))
+        if (_dicRes.ContainsKey(path))
         {
-            _dicAudios.Add(path, new AudioHander(audioHander, gameObj));
-            return gameObj;
+            var res = _dicRes[path];
+            res.count++; //引用计数加1
+            return res.hander.Result as Texture;
         }
         else
         {
-            Debug.LogError("严重错误");
-            return null;
+            AsyncOperationHandle hander;
+            if (objType)
+            {
+                hander = ResLoader.Instance.GetUITexture(path);
+            }
+            else
+            {
+                hander = ResLoader.Instance.GetGameTexture(path);
+            }
+            _dicRes.Add(path, new ResHander(hander));//默认引用计数为1
+            return _dicRes[path].hander.Result as Texture;
         }
     }
-
-    public GameObject PreAddGameObject(string path,AsyncOperationHandle gameObjectHander)
+    public TextAsset GetTextAsset(string path)
     {
-        GameObject gameObj = gameObjectHander.Result as GameObject;
-        if (!_dicObjects.ContainsKey(path))
+        if (_dicRes.ContainsKey(path))
         {
-            _dicObjects.Add(path, new GameObjectHander(gameObjectHander, gameObj));
-            return gameObj;
+            var res = _dicRes[path];
+            res.count++; //引用计数加1
+            return res.hander.Result as TextAsset;
         }
         else
         {
-            Debug.LogError("严重错误");
-            return null;
+            var hander = ResLoader.Instance.GetTextAsset(path);
+            _dicRes.Add(path, new ResHander(hander));//默认引用计数为1
+            return _dicRes[path].hander.Result as TextAsset;
         }
     }
-    public TextAsset PreAddTextAsset(string path, AsyncOperationHandle textAssetHander)
-    {
-        TextAsset gameObj = textAssetHander.Result as TextAsset;
-        if (!_dicTexts.ContainsKey(path))
-        {
-            _dicTexts.Add(path, new TextHander(textAssetHander, gameObj));
-            return gameObj;
-        }
-        else
-        {
-            Debug.LogError("严重错误");
-            return null;
-        }
-    }
-
     #endregion
-
-
-
-
-
-    public class ResHanderMono : MonoBehaviour
+    #region 释放 减少引用计数
+    public void ReleaseRes(string path)
     {
-        ResHanderManager _resHanderManager;
-
-        public Coroutine InitNormalAudio(List<string> audioPaths,Action LoadCompleted)
+        if (_dicRes.ContainsKey(path))
         {
-            return StartCoroutine(InitNormalAudioRes(audioPaths,LoadCompleted));
-        }
-
-        public Coroutine InitGameObject(List<string> gameObjectPaths,Action LoadCompleted)
-        {
-            return StartCoroutine(InitGameObjectRes(gameObjectPaths, LoadCompleted));
-        }
-
-        #region 初始化公用资源
-
-        /// <summary>
-        /// 公用音效资源
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerator InitCommonAudioRes()
-        {
-            AdressablePath adressablePath = Resources.Load<AdressablePath>(typeof(AdressablePath).ToString());
-            int audioCount = 0;
-            foreach (var item in adressablePath.commonAudioPaths)
+            var resHander = _dicRes[path];
+            resHander.count--; //引用计数减1
+#if UNITY_EDITOR
+            if (resHander.count < 0)
             {
-                 ResLoader.Instance.GetAudioClip(item, (audioClipHander) =>
-                {
-                    audioCount++;
-                    AudioClip audioClip = audioClipHander.Result as AudioClip;
-                    _resHanderManager._dicAudios.Add(audioClip.name,new AudioHander(audioClipHander,audioClip));
-                });
+                Debug.LogError(string.Format("{0}释放音效有问题:{1}",path, resHander.count));
             }
-            while (adressablePath.commonAudioPaths.Count!= audioCount)
-            {
-                yield return null;
-            }
-        }
-
-        public IEnumerator InitCommonTextAssetRes()
-        {
-            AdressablePath adressablePath = Resources.Load<AdressablePath>(typeof(AdressablePath).ToString());
-            int audioCount = 0;
-            foreach (var item in adressablePath.commonAudioPaths)
-            {
-                ResLoader.Instance.GetAudioClip(item, (audioClipHander) =>
-                {
-                    audioCount++;
-                    AudioClip audioClip = audioClipHander.Result as AudioClip;
-                    _resHanderManager._dicAudios.Add(audioClip.name, new AudioHander(audioClipHander, audioClip));
-                });
-            }
-            while (adressablePath.commonAudioPaths.Count != audioCount)
-            {
-                yield return null;
-            }
-        }
-
-        #endregion
-
-        #region 预加载资源
-
-        /// <summary>
-        /// 普通音效
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerator InitNormalAudioRes(List<string> audioPaths, Action LoadCompleted)
-        {
-            int audioCount = 0;
-            foreach (var item in audioPaths)
-            {
-                ResLoader.Instance.GetAudioClip(item, (audioClipHander) =>
-                {
-                    audioCount++;
-                    AudioClip audioClip = audioClipHander.Result as AudioClip;
-                    if (_resHanderManager._dicAudios.ContainsKey(audioClip.name))
-                    {
-                        Debug.LogError("音效重复！");
-                        return;
-                    }
-                    _resHanderManager._dicAudios.Add(item, new AudioHander(audioClipHander, audioClip));
-                });
-            }
-            while (audioPaths.Count != audioCount)
-            {
-                yield return null;
-            }
-            LoadCompleted?.Invoke();
-        }
-
-        private IEnumerator InitGameObjectRes(List<string> gameObjectPaths, Action LoadCompleted)
-        {
-            int gameObjectCount = 0;
-            foreach (var item in gameObjectPaths)
-            {
-                ResLoader.Instance.GetGamePrefab(item, (gameObjectHander) =>
-                {
-                    gameObjectCount++;
-                    GameObject gameObj = gameObjectHander.Result as GameObject;
-                    if (_resHanderManager._dicObjects.ContainsKey(gameObj.name))
-                    {
-                        Debug.LogError("GameObject重复！"+gameObj.name);
-                        return;
-                    }
-                    _resHanderManager._dicObjects.Add(item, new GameObjectHander(gameObjectHander, gameObj));
-                });
-            }
-            while (gameObjectPaths.Count != gameObjectCount)
-            {
-                yield return null;
-            }
-            LoadCompleted?.Invoke();
-        }
-
-        #endregion
-    }
-    struct AudioHander
-    {
-        public AsyncOperationHandle audioHander;
-        public AudioClip audioClip;
-
-        public AudioHander(AsyncOperationHandle hander,AudioClip audioClip)
-        {
-            this.audioHander = hander;
-            this.audioClip = audioClip;
-        }
-
-
-    }
-
-    struct GameObjectHander
-    {
-        public AsyncOperationHandle gameObjectHander;
-        public GameObject gameObject;
-
-        public GameObjectHander(AsyncOperationHandle hander, GameObject gameObject)
-        {
-            this.gameObjectHander = hander;
-            this.gameObject = gameObject;
+#endif
         }
     }
-
-    struct TextHander
-    {
-        public AsyncOperationHandle textHander;
-        public TextAsset textAsset;
-
-        public TextHander(AsyncOperationHandle hander, TextAsset textAsset)
-        {
-            this.textHander = hander;
-            this.textAsset = textAsset;
-        }
-    }
-    struct AIHander
-    {
-        public AsyncOperationHandle behaviorHander;
-        public ExternalBehavior behavior;
-
-        public AIHander(AsyncOperationHandle hander, ExternalBehavior behavior)
-        {
-            this.behaviorHander = hander;
-            this.behavior = behavior;
-        }
-    }
+    #endregion
 }
+
+struct ResHander
+{
+    public int count;
+    public AsyncOperationHandle hander;
+
+    public ResHander(AsyncOperationHandle hander)
+    {
+        this.hander = hander;
+        this.count = 1;
+    }
+
+}
+

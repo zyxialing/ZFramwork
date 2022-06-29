@@ -1,3 +1,4 @@
+using BehaviorDesigner.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,13 +7,12 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
-public class TextAssetUtils
+public class AudioUtils
 {
-    public static TextAsset GetTextAsset(string path)
+    public static AudioClip GetAudio(string path)
     {
-        return ResHanderManager.Instance.GetTextAsset(path);
+        return ResHanderManager.Instance.GetAudio(path);
     }
-
 
     public static void Release(string path)
     {

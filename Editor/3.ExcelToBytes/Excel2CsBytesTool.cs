@@ -74,6 +74,7 @@ public class Excel2CsBytesTool
             stringBuilder.AppendLine("using System.IO;");
             stringBuilder.AppendLine("using System.Runtime.Serialization.Formatters.Binary;");
             stringBuilder.AppendLine("using System.Xml.Serialization;");
+            stringBuilder.AppendLine("using UnityEngine;");
             stringBuilder.AppendLine("using ZFramework;");
             stringBuilder.Append("\n");
             stringBuilder.Append("namespace Table {\n");
@@ -124,14 +125,12 @@ public class Excel2CsBytesTool
                 }
                 stringBuilder.Append("\n");
             }
-            stringBuilder.AppendLine($"        public void LoadBytes<T>(Action<List<T>> callBack)");
+            stringBuilder.AppendLine($"        public List<T> LoadBytes<T>()");
             stringBuilder.AppendLine("        {");
             stringBuilder.AppendLine($"            string bytesPath = \"Assets/Game/AssetDynamic/ConfigBytes/{className}\";");
-            stringBuilder.AppendLine("            TextAssetUtils.SafeGetTextAsset(bytesPath, (asset) =>");
-            stringBuilder.AppendLine("            {");
-            stringBuilder.AppendLine($"                List<T> {className}s = DeserializeData<T>(asset);");
-            stringBuilder.AppendLine($"                callBack?.Invoke({className}s);");
-            stringBuilder.AppendLine("            });");
+            stringBuilder.AppendLine("             TextAsset asset = TextAssetUtils.GetTextAsset(bytesPath);");
+            stringBuilder.AppendLine($"            List<T> {className}s = DeserializeData<T>(asset);");
+            stringBuilder.AppendLine($"            return {className}s;");
             stringBuilder.AppendLine("        }");
             stringBuilder.AppendLine("");
             stringBuilder.AppendLine($"         private List<T> DeserializeData<T>(UnityEngine.TextAsset textAsset)");

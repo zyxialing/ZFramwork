@@ -56,7 +56,7 @@ public class Sound
     /// Use AudioManager.NewSound instead
     public Sound(string newName) {
         name = newName;
-        clip = ResHanderManager.Instance.GetAudio(name);
+        clip = AudioUtils.GetAudio(name);
         ZLogUtil.Log(clip);
         if (clip == null)
             throw new Exception("Couldn't find AudioClip with name '"+name+"'. Are you sure the file is in a folder named 'Resources'?");
@@ -94,6 +94,7 @@ public class Sound
         MonoBehaviour.Destroy(source);
         source = null;
         audioMono.sounds.Remove(this);
+        AudioUtils.Release(name);
     }
 
     /// Reset the sound to its beginning

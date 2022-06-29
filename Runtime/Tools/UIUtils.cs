@@ -6,32 +6,24 @@ using UnityEngine.UI;
 
 public class UIUtils
 {
-    //public static Sprite loadingSprite;
-     public static void SetSprite(Image image,string path)
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="image"></param>
+    /// <param name="path"></param>
+    /// <param name="isUI">isUI ÊÇ·ñÊÇUIÂ·¾¶</param>
+    public static void SetSprite(Image image,string path,bool isUI = true)
     {
-        //if (loadingSprite == null)
-        //{
-        //    loadingSprite = Resources.Load<Sprite>("loading");
-        //}
-        //if(image.sprite = null)
-        //{
-        //    image.sprite = loadingSprite;
-        //}
-        ResLoader.Instance.GetUISprite(path, (sp) => {
-            image.sprite = sp;
-        });
-    }
-    public static void LoadSprite(string path,Action<Sprite> callback)
-    {
-        //if (loadingSprite == null)
-        //{
-        //    loadingSprite = Resources.Load<Sprite>("loading");
-        //}
-        //if(image.sprite = null)
-        //{
-        //    image.sprite = loadingSprite;
-        //}
-        ResLoader.Instance.GetUISprite(path,callback);
+        image.sprite = ResHanderManager.Instance.GetSprite(path,isUI);
     }
 
+    public static Sprite GetSprite(string path, bool isUI = true)
+    {
+        return ResHanderManager.Instance.GetSprite(path, isUI);
+    }
+
+    public static void Release(string path)
+    {
+        ResHanderManager.Instance.ReleaseRes(path);
+    }
 }

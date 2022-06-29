@@ -89,15 +89,9 @@ public class UISprite : MonoBehaviour
                     {
                         Chip chip = new Chip();
                         chip.path = path;
-                        chip.loading = false;
                         if (Application.isPlaying)
                         {
-                            chip.loading = true;
-                            UIUtils.LoadSprite(path, (Sprite sp) =>
-                            {
-                                chip.sprite = sp;
-                                chip.loading = false;
-                            });
+                            chip.sprite = UIUtils.GetSprite(path);
                         }
                         chips.Add(chip);
                     }

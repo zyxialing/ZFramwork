@@ -33,18 +33,17 @@ public class BasePanel : MonoBehaviour {
 
     }
 
-    public void CoroInit(Action callback)
+    public void CoroInit()
     {
-        StartCoroutine(InitPanel(callback));
+        StartCoroutine(InitPanel());
     }
 
-    private IEnumerator InitPanel(Action callback)
+    private IEnumerator InitPanel()
     {
         OnShowing();
         yield return null;
         OnOpen();
         yield return null;
-        callback?.Invoke();
     }
 
     /// <summary>

@@ -14,23 +14,8 @@ public class AIUtils
         return ResHanderManager.Instance.GetAI(path);
     }
 
-    public static void SafeGetExternalBehavior(string path, Action<ExternalBehavior> callBack)
+    public static void Release(string path)
     {
-        var obj = ResHanderManager.Instance.GetAI(path);
-        if (obj == null)
-        {
-            ResLoader.Instance.GetAI(path, (hander) => {
-                ResHanderManager.Instance.PreLoadAI(path,hander);
-                ExternalBehavior tempObj = AIUtils.GetExternalBehavior(path);
-                callBack?.Invoke(tempObj);
-               
-            });
-        }
-        else
-        {
-            callBack?.Invoke(obj);
-        }
+        ResHanderManager.Instance.ReleaseRes(path);
     }
-
-
 }
