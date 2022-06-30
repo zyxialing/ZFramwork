@@ -21,6 +21,8 @@ public class Excel2CsBytesTool
     static string CsClassPath = "Assets/Game/Scripts/ConfigClass";//生成的c#脚本文件夹
     static string XmlDataPath = ExcelDataPath + "/tempXmlData";//生成的xml(临时)文件夹..
     static string AllCsHead = "all";//序列化结构体的数组类.类名前缀
+    static string CsExcelMgrPath = "Assets/Game/Scripts/ConfigClass/Excel";//生成的bytes文件夹
+
 
     public static char ArrayTypeSplitChar = '-';//数组类型值拆分符: int[] 1#2#34 string[] 你好#再见 bool[] true#false ...
     static bool IsDeleteXmlInFinish = false;//生成bytes后是否删除中间文件xml
@@ -41,6 +43,16 @@ public class Excel2CsBytesTool
         AssetDatabase.Refresh();
         Directory.CreateDirectory(XmlDataPath);
         Excel2CsOrXml(true);
+   
+    }
+    [MenuItem("ZFramework/Editor/3.Excel/Bind")]
+    static void BindExcelMgr()
+    {
+        if (!Directory.Exists(CsExcelMgrPath))
+        {
+            Directory.CreateDirectory(CsExcelMgrPath);
+        }
+        ExcelMgrCs();
     }
     [MenuItem("ZFramework/Editor/3.Excel/转Bytes(等待上一步编译后)")]
     static void Excel2Xml2Bytes()
@@ -153,6 +165,164 @@ public class Excel2CsBytesTool
             stringBuilder.AppendLine("}");
 
             string csPath = CsClassPath + "/" + className + ".cs";
+            if (File.Exists(csPath))
+            {
+                File.Delete(csPath);
+            }
+            using (StreamWriter sw = new StreamWriter(csPath))
+            {
+                sw.Write(stringBuilder);
+                Debug.Log("生成:" + csPath);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("写入CS失败:" + e.Message);
+            throw;
+        }
+    }
+
+    static void ExcelMgrCs()
+    {
+        string[] excelPaths = Directory.GetFiles(CsClassPath, "*.cs");
+        List<string> csNames = new List<string>();
+        foreach (var item in excelPaths)
+        {
+            csNames.Add(new DirectoryInfo(item).Name.Replace(".cs", ""));
+        }
+        Debug.LogError(csNames[1]);
+
+        try
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("//脚本自动生成，不要进行修改");
+            stringBuilder.AppendLine("using System.Collections.Generic;");
+            stringBuilder.AppendLine("using Table;");
+            stringBuilder.Append("\n");
+            stringBuilder.AppendLine("public class ExcelData");
+            stringBuilder.AppendLine("{");
+            foreach (var item in csNames)
+            {
+                stringBuilder.AppendLine($"    public Dictionary<int, {item}> {item}Map = new Dictionary<int, {item}>();");
+                stringBuilder.AppendLine($"    public List<{item}> {item}List = new List<{item}>();");
+            }
+
+            stringBuilder.Append("\n");
+            stringBuilder.AppendLine("    public void InitData<T>(List<T> list)");
+            stringBuilder.AppendLine("    {");
+            stringBuilder.AppendLine("        switch (typeof(T).Name)");
+            stringBuilder.AppendLine("        {");
+            foreach (var item in csNames)
+            {
+                stringBuilder.AppendLine($"            case \"{item}\":");
+                stringBuilder.AppendLine($"                {item}List = list as List<{item}>;");
+                stringBuilder.AppendLine($"                for (int i = 0; i < {item}List.Count; i++)");
+                stringBuilder.AppendLine("                {");
+                stringBuilder.AppendLine($"                    {item}Map.Add({item}List[i].id, {item}List[i]);");
+                stringBuilder.AppendLine("                }");
+                stringBuilder.AppendLine("                break;");
+            }
+            stringBuilder.AppendLine("        }");
+            stringBuilder.AppendLine("    }");
+            stringBuilder.AppendLine("}");
+
+            string csPath = CsExcelMgrPath + "/ExcelData.cs";
+            if (File.Exists(csPath))
+            {
+                File.Delete(csPath);
+            }
+            using (StreamWriter sw = new StreamWriter(csPath))
+            {
+                sw.Write(stringBuilder);
+                Debug.Log("生成:" + csPath);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("写入CS失败:" + e.Message);
+            throw;
+        }
+
+        try
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("//脚本自动生成，不要进行修改");
+            stringBuilder.AppendLine("using UnityEngine;");
+            stringBuilder.AppendLine("using Table;");
+            stringBuilder.Append("\n");
+            stringBuilder.AppendLine("public class ExcelLoader : MonoBehaviour");
+            stringBuilder.AppendLine("{");
+            stringBuilder.AppendLine("    public void LoadExcel()");
+            stringBuilder.AppendLine("    {");
+            foreach (var item in csNames)
+            {
+                stringBuilder.AppendLine($"        ExcelConfig.Instance.InitExcelData(Config<{item}>.InitConfig());");
+            }
+            stringBuilder.AppendLine("    }");
+            stringBuilder.AppendLine("}");
+
+            string csPath = CsExcelMgrPath + "/ExcelLoader.cs";
+            if (File.Exists(csPath))
+            {
+                File.Delete(csPath);
+            }
+            using (StreamWriter sw = new StreamWriter(csPath))
+            {
+                sw.Write(stringBuilder);
+                Debug.Log("生成:" + csPath);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("写入CS失败:" + e.Message);
+            throw;
+        }
+
+        try
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("//脚本自动生成，不要进行修改");
+            stringBuilder.AppendLine("using System.Collections.Generic;");
+            stringBuilder.AppendLine("using UnityEngine;");
+            stringBuilder.AppendLine("using Table;");
+            stringBuilder.Append("\n");
+            stringBuilder.AppendLine("public class ExcelConfig : Singleton<ExcelConfig>");
+            stringBuilder.AppendLine("{");
+            stringBuilder.AppendLine("    ExcelData excelData = new ExcelData();");
+            stringBuilder.AppendLine("    private ExcelConfig()");
+            stringBuilder.AppendLine("    {");
+            stringBuilder.AppendLine("    }");
+            stringBuilder.Append("\n");
+            stringBuilder.AppendLine("    public ExcelData GetExcelData()");
+            stringBuilder.AppendLine("    {");
+            stringBuilder.AppendLine("        return excelData;");
+            stringBuilder.AppendLine("    }");
+            stringBuilder.Append("\n");
+            stringBuilder.AppendLine("    public void InitExcelData<T>(List<T> list)");
+            stringBuilder.AppendLine("    {");
+            stringBuilder.AppendLine("        excelData.InitData(list);");
+            stringBuilder.AppendLine("    }");
+            stringBuilder.Append("\n");
+            stringBuilder.AppendLine("    public void LoadAllExcel()");
+            stringBuilder.AppendLine("    {");
+            stringBuilder.AppendLine("        ExcelLoader excelLoader = new GameObject(\"ExcelLoader\").AddComponent<ExcelLoader>();");
+            stringBuilder.AppendLine("        excelLoader.LoadExcel();");
+            stringBuilder.AppendLine("    }");
+            stringBuilder.Append("\n");
+            stringBuilder.AppendLine("    #region 外部调用");
+            foreach (var item in csNames)
+            {
+                stringBuilder.Append($"    public static {item} Get_{item}(int id)");
+                stringBuilder.AppendLine("    {");
+                stringBuilder.AppendLine($"      return  Instance.GetExcelData().{item}Map[id];");
+                stringBuilder.AppendLine("    }");
+            }
+            stringBuilder.AppendLine("    #endregion");
+            stringBuilder.Append("}");
+
+
+
+            string csPath = CsExcelMgrPath + "/ExcelConfig.cs";
             if (File.Exists(csPath))
             {
                 File.Delete(csPath);
