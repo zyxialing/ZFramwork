@@ -69,6 +69,7 @@ public class Excel2CsBytesTool
         Excel2CsOrXml(false);
         //生成bytes
         WriteBytes();
+        AssetDatabase.Refresh();
     }
 
     static void Init()
