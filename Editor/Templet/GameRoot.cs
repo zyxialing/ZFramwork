@@ -6,7 +6,7 @@ public class GameRoot : MonoBehaviour
 {
     void Start()
     {
-        ResLoader.Instance.GetScene("LoadingScene", null);
+        //ResLoader.Instance.GetScene("LoadingScene", null);
     }
 
 }

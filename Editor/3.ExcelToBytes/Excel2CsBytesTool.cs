@@ -191,7 +191,7 @@ public class Excel2CsBytesTool
         {
             csNames.Add(new DirectoryInfo(item).Name.Replace(".cs", ""));
         }
-        Debug.LogError(csNames[1]);
+
 
         try
         {
@@ -615,7 +615,7 @@ public class Excel2CsBytesTool
         stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
         stringBuilder.AppendLine($"        public string _{name} {{");
         stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
-        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<string>();else {name} = ZStringUtil.ArrayStringToList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<string>();else {name} = ZStringUtil.ArrayStringToList(value.Split('{ArrayTypeSplitChar}'));}}");
         stringBuilder.AppendLine($"        }}");
     }
     static void AppendintArray(StringBuilder stringBuilder, string name, string type)
@@ -625,7 +625,7 @@ public class Excel2CsBytesTool
         stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
         stringBuilder.AppendLine($"        public string _{name} {{");
         stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
-        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<int>();else {name} = ZStringUtil.ArrayStringToIntList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<int>();else {name} = ZStringUtil.ArrayStringToIntList(value.Split('{ArrayTypeSplitChar}'));}}");
         stringBuilder.AppendLine($"        }}");
     }
     static void AppendfloatArray(StringBuilder stringBuilder, string name, string type)
@@ -635,7 +635,7 @@ public class Excel2CsBytesTool
         stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
         stringBuilder.AppendLine($"        public string _{name} {{");
         stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
-        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<float>();else {name} = ZStringUtil.ArrayStringToFloatList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<float>();else {name} = ZStringUtil.ArrayStringToFloatList(value.Split('{ArrayTypeSplitChar}'));}}");
         stringBuilder.AppendLine($"        }}");
     }
     static void AppendboolArray(StringBuilder stringBuilder, string name, string type)
@@ -645,7 +645,7 @@ public class Excel2CsBytesTool
         stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
         stringBuilder.AppendLine($"        public string _{name} {{");
         stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
-        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<bool>();else {name} = ZStringUtil.ArrayStringToBoolList(value.Split(Excel2CsBytesTool.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<bool>();else {name} = ZStringUtil.ArrayStringToBoolList(value.Split('{ArrayTypeSplitChar}'));}}");
         stringBuilder.AppendLine($"        }}");
     }
     static void AppendlongArray(StringBuilder stringBuilder, string name, string type)
@@ -655,7 +655,7 @@ public class Excel2CsBytesTool
         stringBuilder.AppendLine($"        [XmlAttribute(\"{name}\")]");
         stringBuilder.AppendLine($"        public string _{name} {{");
         stringBuilder.AppendLine($"            get {{ return {name}.ToString(); }}");
-        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<long>();else {name} = ZStringUtil.ArrayStringToBoolList(value.Split(ArrayStringToLongList.ArrayTypeSplitChar));}}");
+        stringBuilder.AppendLine($"            set{{ if (string.IsNullOrEmpty(value)) {name} = new List<long>();else {name} = ZStringUtil.ArrayStringToBoolList(value.Split('{ArrayTypeSplitChar}'));}}");
         stringBuilder.AppendLine($"        }}");
     }
 }
