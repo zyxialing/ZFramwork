@@ -84,6 +84,7 @@ public class ScriptCreater
         stringBuilder.Append("\n");
         stringBuilder.Append("   public override void AutoInit()\n");
         stringBuilder.Append("   {\n");
+        stringBuilder.Append("        ServiceBinder.Instance.RegisterObj(this);\n");
         for (int i = 0; i < uIPanel.nodes.Count; i++)
         {
             Transform curTrans = uIPanel.nodes[i].transform;
@@ -162,6 +163,8 @@ public class ScriptCreater
         stringBuilder.Append($"       EnhancedScrollerCellView cellView = scroller.GetCellView(cellViewPrefab);\n");
         stringBuilder.Append("        cellView.dataIndex = dataIndex;\n");
         stringBuilder.Append("        cellView.cellIndex = cellIndex;\n");
+        stringBuilder.Append("        cellView.scroller = scroller;");
+        stringBuilder.Append("        cellView.InitData(this);");
         stringBuilder.Append("        cellView.RefreshCellView();\n");
         stringBuilder.Append("        return cellView;\n");
         stringBuilder.Append("    }\n\n");
@@ -203,6 +206,7 @@ public class ScriptCreater
         }
         stringBuilder.Append("    void Start()\n");
         stringBuilder.Append("    {\n");
+        stringBuilder.Append("        ServiceBinder.Instance.RegisterObj(this);\n");
         stringBuilder.Append("        scroller = GetComponent<EnhancedScroller>();\n");
         stringBuilder.Append("        rectTransform = GetComponent<RectTransform>();\n");
         stringBuilder.Append("        cellRectTransform = cellViewPrefab.GetComponent<RectTransform>();\n");

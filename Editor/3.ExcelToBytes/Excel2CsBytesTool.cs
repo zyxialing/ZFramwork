@@ -524,6 +524,7 @@ public class Excel2CsBytesTool
                     {
                         //读取xml实例化table: all+classname
                         //object table = assembly.CreateInstance("Table." + type.Name);
+                        ZLogUtil.LogError(className);
                         XmlSerializer xmlSerializer = new XmlSerializer(type);
                         table = xmlSerializer.Deserialize(reader);
                     }

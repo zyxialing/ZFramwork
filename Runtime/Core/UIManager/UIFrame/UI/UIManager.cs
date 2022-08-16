@@ -121,6 +121,27 @@ public class UIManager : Singleton<UIManager>
         ZLogUtil.LogError("没有面板关闭了");
     }
 
+    public void CloseAll()
+    {
+        foreach (PanelLayer item in Enum.GetValues(typeof(PanelLayer)))
+        {
+            if (_panelStacks.ContainsKey(item))
+            {
+                int count = _panelStacks[item].Count;
+                for (int i = 0; i < count; i++)
+                {
+                    BasePanel panel = _panelStacks[item].Pop();
+                    panel.OnHide();
+                    panel.OnClosing();
+                    panel.panel.SetActive(false);
+                    GameObject.Destroy(panel.panel);
+                    GameObject.Destroy(panel);
+                    return;
+                }
+            }
+        }
+    }
+
     private void InitUIPrefab(BasePanel basePanel, GameObject obj)
     {
         basePanel.panel = obj;

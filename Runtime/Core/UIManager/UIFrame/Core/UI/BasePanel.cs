@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
+using UnityEngine.Events;
 
 public class BasePanel : MonoBehaviour {
 
@@ -80,6 +82,13 @@ public class BasePanel : MonoBehaviour {
     protected virtual void Close()
     {
         UIManager.Instance.ClosePanel(panelLayer);
+    }
+
+
+    protected void AddClick(Button button,UnityAction callBack)
+    {
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(callBack);
     }
 
 }
