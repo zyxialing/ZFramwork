@@ -2,7 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+public enum CameraShakeType
+{
+    shake_1
+}
 public class CameraUtils
 {
     public static Camera CreateCamer(string name)
@@ -26,4 +29,14 @@ public class CameraUtils
         camera.depth = 100;
         camera.transform.position = Vector3.zero;
     }
+
+
+
+
+    #region 相机动画
+    public static void ShakeCamera(Camera camera,CameraShakeType shakeType)
+    {
+       
+    }
+    #endregion
 }

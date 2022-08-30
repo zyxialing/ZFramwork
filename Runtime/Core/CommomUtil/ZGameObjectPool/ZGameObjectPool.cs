@@ -32,7 +32,10 @@ public class ZGameObjectPool
     }
     public static void Push(string name, GameObject obj,bool hide = true)
     {
-        Debug.LogError("xxxxxxaaaaaaaaa");
+        if (obj == null)
+        {
+            return;
+        }
         if (hide)
         {
             obj.SetActive(false);
